@@ -1,19 +1,34 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
 from PyQt5.QtCore import QObject, QTimer
 
+from PyQt5.QtGui import (
+    QColor
+)
+from PyQt5.QtWidgets import (
+    QGraphicsScene
+)
 from PyQt5.QtCore import (
-    QPointF
+    QPointF,
+    QRect
 )
 
 import math
 
+from models.channel_model import ChannelModel
+
 
 class Arrowhead(QtWidgets.QGraphicsPolygonItem):
+    """
+        Arrowhead canvas item, this fills up the channel between the component gui items.
+        The direction of the arrows tells whether the flow is normal or inverted. Their density
+        describes the amount and the speed is the speed of the flow if applicable.
+    """
     def __init__(self, size=10, segment_index=0, parent=None):
         super().__init__(parent)
         self.size = size
-        self.setPen(QtGui.QPen(QtGui.QColor(255, 255, 255, 200), 1))
-        self.setBrush(QtGui.QBrush(QtGui.QColor(0, 0, 255, 200)))
+        self.color = QColor(0, 0, 255, 200)
+        self.setPen(QtGui.QPen(QColor(255, 255, 255, 200), 1))
+        self.setBrush(QtGui.QBrush(self.color))
         self.segment_index = segment_index
 
         # Create the arrowhead shape
@@ -39,13 +54,19 @@ class Channel(QObject):
     DIRECTION_LEFT = 3      # Channel segment left direction
     DIRECTION_BOTTOM = 4    # Channel segment bottom direction
 
-    def __init__(self, start_rect, end_rect, scene):
+    def __init__(self, id_start: int, id_end: int, start_rect: QRect, end_rect: QRect, scene: QGraphicsScene):
         super(Channel, self).__init__()
+        self.id_start = id_start
+        self.id_end = id_end
+        self.model = ChannelModel()
+        self.model.animation_speed = 5
+        self.model.arrow_density = 20
+        self.model.channel_color = QColor('green')
+        self.model.arrow_color = QColor(0, 0, 255, 200)
+        self.model.text = '3 kWh'
         self.scene = scene
-        self.arrow_density = 20
-        self.animation_speed = 5  # Speed in pixels per frame
-        self.text_item = QtWidgets.QGraphicsTextItem("3 kWh")
-        self.text_item.setDefaultTextColor(QtGui.QColor('lightgray'))
+        self.text_item = QtWidgets.QGraphicsTextItem(self.model.text)
+        self.text_item.setDefaultTextColor(QColor('lightgray'))
         self.text_item.setFont(QtGui.QFont("Arial", 12, QtGui.QFont.Bold))
         self.scene.addItem(self.text_item)
 
@@ -64,7 +85,7 @@ class Channel(QObject):
         self._set_text_position()
 
         # Initialize the arrows
-        self.arrowheads = self.create_arrows(self.start_edge_point, self.end_edge_point, num_arrows=self.arrow_density)
+        self.arrowheads = self.create_arrows(self.start_edge_point, self.end_edge_point, num_arrows=self.model.arrow_density)
         self.direction_vector = QPointF(
             self.end_edge_point.x() - self.start_edge_point.x(),
             self.end_edge_point.y() - self.start_edge_point.y()
@@ -105,14 +126,22 @@ class Channel(QObject):
     def triggerError(self, error=True):
         """ Trigger or clear an error state. """
         if error:
-            self.text_item.setDefaultTextColor(QtGui.QColor(200, 0, 0, 150))
-            self.text_item.setPlainText("0.5 kWh")
+            self.text_item.setDefaultTextColor(QColor(200, 0, 0, 150))
+            self.text_item.setPlainText(self.model.text)
             self.error_animation.start()
         else:
             self.error_animation.stop()
             self.text_item.setOpacity(1)  # Ensure full visibility
-            self.text_item.setDefaultTextColor(QtGui.QColor(200, 200, 200, 150))
-            self.text_item.setPlainText("5 kWh")
+            self.text_item.setDefaultTextColor(QColor(200, 200, 200, 150))
+            self.text_item.setPlainText(self.model.text)
+
+    def update_channel(self):
+        """Updates the channel gui via the model data."""
+        self.text_item.setPlainText(f"{self.model.text} kWh")
+        for arrow in self.arrowheads:
+            self.scene.removeItem(arrow)
+        self.arrowheads = list()
+        self.arrowheads = self.create_arrows(self.start_edge_point, self.end_edge_point, num_arrows=self.model.arrow_density)
 
     def _get_connecting_edge_points(self, rect1, rect2):
         """Get the connecting edge points between two icon bounding rectangles."""
@@ -167,6 +196,9 @@ class Channel(QObject):
             Returns:
                 List of created arrows
         """
+        if num_arrows < 2:
+            return list()
+
         arrowheads = list()
         start_segment_direction = self._get_direction(self.start_edge_point, self.corner_point)
         end_segment_direction = self._get_direction(self.corner_point, self.end_edge_point)
@@ -207,7 +239,7 @@ class Channel(QObject):
 
         return arrowheads
 
-    def _draw_channel(self):
+    def draw(self):
         """
             Draw a channel (tube) between two graphical items,
             with a black outline and gradient filling parallel to the path.
@@ -223,7 +255,7 @@ class Channel(QObject):
         outline_path = QtGui.QPainterPath()
         outline_path.addPath(path)
 
-        outer_pen = QtGui.QPen(QtGui.QColor(100, 100, 100), 11)  # Wider than inner path to create a border
+        outer_pen = QtGui.QPen(QColor(100, 100, 100), 11)  # Wider than inner path to create a border
         outer_pen.setJoinStyle(QtCore.Qt.MiterJoin)
         outline = QtWidgets.QGraphicsPathItem()
         outline.setPath(outline_path)
@@ -276,8 +308,8 @@ class Channel(QObject):
             gradient_end = QPointF(self.start_edge_point.x() - 6, self.start_edge_point.y())
 
         gradient1 = QtGui.QLinearGradient(gradient_start, gradient_end)
-        gradient1.setColorAt(0, QtGui.QColor('green'))
-        gradient1.setColorAt(1, QtGui.QColor('white'))
+        gradient1.setColorAt(0, self.model.channel_color)
+        gradient1.setColorAt(1, QColor('white'))
 
         # Second segment
         if direction_end == self.DIRECTION_TOP or direction_end == self.DIRECTION_BOTTOM:
@@ -287,14 +319,14 @@ class Channel(QObject):
             gradient_start = self.corner_point
             gradient_end = QPointF(self.corner_point.x(), self.corner_point.y() + end_gradient_offset)
         gradient2 = QtGui.QLinearGradient(gradient_start, gradient_end)
-        gradient2.setColorAt(0, QtGui.QColor('green'))
-        gradient2.setColorAt(1, QtGui.QColor('white'))
+        gradient2.setColorAt(0, self.model.channel_color)
+        gradient2.setColorAt(1, QColor('white'))
 
         gradient_start = self.start_edge_point
         gradient_end = QPointF(self.start_edge_point.x() - 6, self.start_edge_point.y())
         gradient3 = QtGui.QLinearGradient(gradient_start, gradient_end)
-        gradient3.setColorAt(0, QtGui.QColor('green'))
-        gradient3.setColorAt(1, QtGui.QColor('white'))
+        gradient3.setColorAt(0, self.model.channel_color)
+        gradient3.setColorAt(1, QColor('white'))
 
         # Create pens for each segment with respective gradients
         inner_pen1 = QtGui.QPen(gradient1, 8)
@@ -334,13 +366,13 @@ class Channel(QObject):
     def _get_movement_rate(self, direction: int) -> QPointF:
         """Returns the directional movement rate in a from of a 2D point."""
         if direction == self.DIRECTION_RIGHT:
-            return QPointF(self.animation_speed, 0)
+            return QPointF(self.model.animation_speed, 0)
         elif direction == self.DIRECTION_LEFT:
-            return QPointF(-self.animation_speed, 0)
+            return QPointF(-self.model.animation_speed, 0)
         elif direction == self.DIRECTION_TOP:
-            return QPointF(0, -self.animation_speed)
+            return QPointF(0, -self.model.animation_speed)
         elif direction == self.DIRECTION_BOTTOM:
-            return QPointF(0, self.animation_speed)
+            return QPointF(0, self.model.animation_speed)
 
     def _segment_end_reached(
             self,

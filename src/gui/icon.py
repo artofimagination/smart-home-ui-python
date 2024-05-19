@@ -115,3 +115,7 @@ class AnimatedIcon(QtWidgets.QGraphicsPixmapItem):
         self.text = "5 kWh"
         self.text_color = QColor('#CCCCCCCC')
         self._set_pixmap(self.original_pixmap, self.width, self.height)
+
+    def update(self):
+        """Updates the icon."""
+        self._set_pixmap(self.original_pixmap, self.width, self.height)

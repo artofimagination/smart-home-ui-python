@@ -1,10 +1,12 @@
 from PyQt5 import QtWidgets, QtGui, QtCore
-from PyQt5.QtWidgets import (
-    QApplication
-)
 
 from gui.channel import Channel
-from gui.component import Component
+from gui.component_gui import ComponentGui
+
+from helper_defs import (
+    TYPE_SOLAR_PANEL,
+    TYPE_BATTERY
+)
 
 
 class CustomScene(QtWidgets.QGraphicsScene):
@@ -34,20 +36,48 @@ class CustomScene(QtWidgets.QGraphicsScene):
 
 
 class Canvas(QtWidgets.QGraphicsView):
+    """Custom canvas to plot the smart home ui."""
     def __init__(self):
         super().__init__()
-        QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
         self.scene = CustomScene("src/resources/canvas_bg.jpg")
         self.scene.setBackgroundBrush(QtGui.QBrush(QtGui.QColor("#111111")))
         self.setScene(self.scene)
         self.setRenderHint(QtGui.QPainter.Antialiasing)
         self.setRenderHint(QtGui.QPainter.TextAntialiasing)
+        self.component_list = list()
+        self.channels = list()
 
-        # Simulate an error to demonstrate animation
-        self.component1 = Component(self.scene, 0, 0, "src/resources/solar_panel_icon.png")
-        self.component2 = Component(self.scene, -400, 400, "src/resources/battery_icon.png")
+    def add_new_component_gui(self, id: int, type: int, x: int, y: int):
+        """
+            Creates a new component gui based on the input type and attaches it to
+            the backend component via its id.
 
-        # Draw a thick wire between the two icons
-        self.channel = Channel(self.component1.rect(), self.component2.rect(), self.scene)
-        self.channel._draw_channel()
-        self.channel.triggerError(False)
+            Parameters:
+                - id (int): Id of the component the gui item will be created for
+                - type (int): type of the gui item
+                - x (int): x coordinate where the gui item expected to be created at
+                - y (int): y coordinate where the gui item expected to be created at
+        """
+        if type == TYPE_SOLAR_PANEL:
+            self.component_list.append(ComponentGui(id, self.scene, x, y, "src/resources/solar_panel_icon.png"))
+        elif type == TYPE_BATTERY:
+            self.component_list.append(ComponentGui(id, self.scene, x, y, "src/resources/battery_icon.png"))
+        else:
+            raise Exception("Unknown component id")
+
+        if len(self.component_list) - 1 != id:
+            raise Exception("GUI and backend component id mismatch")
+
+    def add_new_channel(self, id_start, id_end):
+        """
+            Adds a new channel between the start and end component
+            defined by \a id_start and \a id_end.
+        """
+        channel = Channel(
+            id_start,
+            id_end,
+            self.component_list[id_start].rect(),
+            self.component_list[id_end].rect(),
+            self.scene)
+        channel.draw()
+        self.channels.append(channel)

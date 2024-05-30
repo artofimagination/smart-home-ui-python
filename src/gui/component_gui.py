@@ -31,7 +31,7 @@ class ComponentGui(QObject):
         icon.text = self.model.main_icon_data
         icon.setPos(x, y)
         self.scene.addItem(icon)
-        #icon.trigger_error()
+        # icon.trigger_error()
         return icon
 
     def _create_graph(self, x, y):
@@ -53,7 +53,7 @@ class ComponentGui(QObject):
     def update_component(self):
         """Updates the component gui via the data model."""
         self.icon.setPos(self.model.component_location.x(), self.model.component_location.y())
-        self.icon.text = f"{self.model.main_icon_data} kWh"
+        self.icon.text = self.model.main_icon_data
         self.graph.setPos(self.model.component_location.x() + 120, self.model.component_location.y() - 80)
         self.plot.clear()
         self.plot.plot(self.model.thumbnail_chart_timestamp, self.model.thumbnail_chart_data1)

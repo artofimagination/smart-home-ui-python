@@ -3,6 +3,7 @@ from helper_defs import (
     TYPE_BATTERY
 )
 from components.solar_controller import SolarController
+from components.battery_controller import BatteryController
 
 
 class LayerController():
@@ -19,7 +20,7 @@ class LayerController():
         if type == TYPE_SOLAR_PANEL:
             self.components.append(SolarController())
         elif type == TYPE_BATTERY:
-            self.components.append(SolarController())
+            self.components.append(BatteryController())
         else:
             raise Exception("Unknown component type")
 

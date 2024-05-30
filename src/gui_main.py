@@ -1,17 +1,31 @@
 from PyQt5.QtWidgets import (
     QMainWindow,
     QApplication,
+    QVBoxLayout,
+    QWidget,
+    QDesktopWidget
 )
 
-from PyQt5.QtCore import QThread, QTimer
+from PyQt5.QtGui import (
+    QIcon,
+    QPixmap
+)
+
+from PyQt5.QtCore import (
+    QSize,
+)
+
+from PyQt5.QtCore import QThread, QTimer, Qt
 
 from backend import Backend
 from gui.canvas import Canvas
+from gui.draggable_option import DraggableButton, Options
 from models.model_updater import ModelUpdater
 
 from helper_defs import (
     TYPE_SOLAR_PANEL,
-    TYPE_BATTERY
+    TYPE_BATTERY,
+    invert_colors
 )
 
 
@@ -24,7 +38,10 @@ class MainWindow(QMainWindow):
         self.worker.signals.error.connect(self.sigint_handler)
         self.worker.signals.finished.connect(self.thread_complete)
 
-        self.resize(800, 600)
+        # self.resize(800, 600)
+        screen = QDesktopWidget().screenGeometry()
+        # Set the window size to match the screen size
+        self.setGeometry(screen)
         self.showMaximized()
         self.setWindowTitle("Smart Home")
         self.canvas = self.create_canvas_layout()
@@ -33,6 +50,8 @@ class MainWindow(QMainWindow):
         self.create_connection(0, 1)
         self.worker.update_data()
         self.setCentralWidget(self.canvas)
+        main_layout = QVBoxLayout(self.canvas)
+        main_layout = self._create_options(main_layout)
         self.model_updater = ModelUpdater(self.canvas.component_list, self.canvas.channels, self.worker)
 
         self.update_timer = QTimer(self)
@@ -44,6 +63,33 @@ class MainWindow(QMainWindow):
         self.workerThread.started.connect(self.worker.run)
         self.workerThread.start()
         self.show()
+
+    def _create_options(self, main_layout):
+        """
+            Creates the dropdown options menu.
+        """
+        draggable_option_container = QWidget(self)
+        draggable_option_container.setGeometry(0, 0, self.width(), self.height())
+        draggable_option_container_layout = QVBoxLayout()
+        draggable_option_container.setLayout(draggable_option_container_layout)
+        self.options_widget = Options(draggable_option_container)
+        self.arrow_button = DraggableButton(
+            "",
+            self.options_widget.open_options_widget,
+            self.options_widget.move_options_widget,
+            self.options_widget.release_options_widget,
+            draggable_option_container)
+        self.options_widget.back_button.pressed.connect(self.arrow_button.animate_back)
+        pixmap = QPixmap("src/resources/down_arrow.png")
+        pixmap = invert_colors(pixmap)
+        self.arrow_button.setIcon(QIcon(pixmap))
+        self.arrow_button.setIconSize(QSize(64, 20))
+        self.arrow_button.setMouseTracking(True)
+        main_layout.setContentsMargins(0, 0, 0, 0)
+        draggable_option_container_layout.addWidget(self.options_widget, 0, Qt.AlignCenter)
+        draggable_option_container_layout.addWidget(self.arrow_button, 0, Qt.AlignCenter)
+        main_layout.addWidget(draggable_option_container, 0)
+        return main_layout
 
     def create_component(self, type: int, x: int, y: int):
         """

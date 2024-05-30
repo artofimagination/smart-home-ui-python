@@ -32,14 +32,14 @@ class ModelUpdater():
     def _update_solar_panel_model_data(self, component: Component, component_gui: ComponentGui) -> ComponentGui:
         """Updates solar panel gui data model."""
         component_gui.model.thumbnail_chart_data1 = component.power_history
-        component_gui.model.main_icon_data = component.rated_power_kWh
+        component_gui.model.main_icon_data = f"{component.rated_power_kWh:.2f} kWh\n  {component.efficiency:.1f}%"
         component_gui.model.thumbnail_chart_timestamp = component.power_history_timestamps
         component_gui.update_component()
         return component_gui
 
     def _update_solar_channel_model_data(self, component: Component, channel_gui: Channel) -> Channel:
         """Updates solar panel channel gui data model."""
-        channel_gui.model.text = component.power_kWh
+        channel_gui.model.text = f"{component.power_kWh} kWh"
         channel_gui.model.arrow_color = QColor(0, 0, 255, 200) if component.power_kWh >= 0 else QColor(255, 0, 0, 200)
         channel_gui.model.arrow_density = component.efficiency / 2
         channel_gui.model.arrows_reversed = False if component.power_kWh >= 0 else True
@@ -48,4 +48,8 @@ class ModelUpdater():
 
     def _update_battery_model_data(self, component: Component, component_gui: ComponentGui) -> ComponentGui:
         """Updates battery gui data model."""
-        pass
+        component_gui.model.main_icon_data = f"{component.battery_capacity_kWh:.2f} kWh\n  {component.charge_percent:.1f}%"
+        component_gui.model.thumbnail_chart_data1 = component.charge_history
+        component_gui.model.thumbnail_chart_timestamp = component.charge_history_timestamps
+        component_gui.update_component()
+        return component_gui

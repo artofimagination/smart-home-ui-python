@@ -10,6 +10,8 @@ from PyQt5.QtGui import (
     QFont
 )
 
+from helper_defs import invert_colors
+
 
 class AnimatedIcon(QtWidgets.QGraphicsPixmapItem):
     """
@@ -41,12 +43,6 @@ class AnimatedIcon(QtWidgets.QGraphicsPixmapItem):
         self._set_pixmap(self.original_pixmap, width, height)
         self.error_animation.finished.connect(self._on_blink_animation_finished)
 
-    def invert_colors(self, pixmap):
-        """ Inverts the colors of the given QPixmap. """
-        image = pixmap.toImage()  # Convert QPixmap to QImage for manipulation
-        image.invertPixels()  # Invert all pixel colors
-        return QPixmap.fromImage(image)
-
     def _set_pixmap(self, pixmap: QPixmap, width: int, height: int):
         """
         Create a component icon that is containing the icon of the component a circle around it
@@ -58,7 +54,7 @@ class AnimatedIcon(QtWidgets.QGraphicsPixmapItem):
             - height (int): height of the animated icon in the scene.
         """
         # The icon is drawn with black color, so inversion is done (should be done during icon preprocessing instead)
-        pixmap = self.invert_colors(pixmap)
+        pixmap = invert_colors(pixmap)
         border_width = 80  # Set the width of the border
         # Mask pixmap to draw a circle around the icon
         mask_size = pixmap.size() + QtCore.QSize(border_width * 4, border_width * 4)
@@ -93,10 +89,10 @@ class AnimatedIcon(QtWidgets.QGraphicsPixmapItem):
             int(mask_size.height() / 2 - pixmap.size().height() / 1.5),
             pixmap)
         painter.drawPixmap(0, 0, mask)
-        painter.setFont(QFont("Arial", 80, QFont.Bold))
+        painter.setFont(QFont("Arial", 70, QFont.Bold))
         painter.setPen(self.text_color)
         text_rect = QtCore.QRect(0, int(mask_size.height() / 2), mask.width(), 300)  # Position the text below the image
-        painter.drawText(text_rect, QtCore.Qt.AlignCenter, self.text)
+        painter.drawText(text_rect, QtCore.Qt.AlignCenter | QtCore.Qt.AlignBottom, self.text)
         painter.end()
 
         # Scale the final icon to the neccessary size.

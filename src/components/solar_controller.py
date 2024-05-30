@@ -1,6 +1,5 @@
 import random
 
-
 from components.component import Component
 
 
@@ -22,12 +21,12 @@ class SolarController(Component):
 
     def generate_demo_data(self):
         """Generates a demo/functional test data."""
-        self.power_kWh = random.randint(0, 1000) / 100
+        self.power_kWh = random.randint(800, 1000) / 100
         self.voltage_V = random.randint(0, 24000) / 1000
         self.efficiency = self.power_kWh * 100.0 / self.rated_power_kWh
         self.power_history.append(self.power_kWh)
         self.timestamp += 1
         self.power_history_timestamps.append(self.timestamp)
-        if len(self.power_history) > 5:
+        if len(self.power_history) > 50:
             self.power_history.pop(0)
             self.power_history_timestamps.pop(0)

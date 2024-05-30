@@ -137,7 +137,7 @@ class Channel(QObject):
 
     def update_channel(self):
         """Updates the channel gui via the model data."""
-        self.text_item.setPlainText(f"{self.model.text} kWh")
+        self.text_item.setPlainText(self.model.text)
         for arrow in self.arrowheads:
             self.scene.removeItem(arrow)
         self.arrowheads = list()
@@ -293,7 +293,7 @@ class Channel(QObject):
                 triangle_path1.moveTo(QPointF(self.corner_point.x() + 2.0, self.corner_point.y()))  # left
                 triangle_path1.lineTo(QPointF(self.corner_point.x() - 1.0, self.corner_point.y() - 3.0))  # top-left
                 triangle_path1.lineTo(QPointF(self.corner_point.x() + 2.0, self.corner_point.y() - 3.0))  # top-right
-                triangle_path1.lineTo(QPointF(self.corner_point.x() + 2.0, self.corner_point.y()))  # left               
+                triangle_path1.lineTo(QPointF(self.corner_point.x() + 2.0, self.corner_point.y()))  # left
 
         # Calculate gradients for each channel turn permutation.
         gradient_start = self.start_edge_point

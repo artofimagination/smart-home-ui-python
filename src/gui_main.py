@@ -6,15 +6,6 @@ from PyQt5.QtWidgets import (
     QDesktopWidget
 )
 
-from PyQt5.QtGui import (
-    QIcon,
-    QPixmap
-)
-
-from PyQt5.QtCore import (
-    QSize,
-)
-
 from PyQt5.QtCore import QThread, QTimer, Qt
 
 from backend import Backend
@@ -51,6 +42,7 @@ class MainWindow(QMainWindow):
         self.worker.update_data()
         self.setCentralWidget(self.canvas)
         main_layout = QVBoxLayout(self.canvas)
+        main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout = self._create_options(main_layout)
         self.model_updater = ModelUpdater(self.canvas.component_list, self.canvas.channels, self.worker)
 
@@ -80,12 +72,6 @@ class MainWindow(QMainWindow):
             self.options_widget.release_options_widget,
             draggable_option_container)
         self.options_widget.back_button.pressed.connect(self.arrow_button.animate_back)
-        pixmap = QPixmap("src/resources/down_arrow.png")
-        pixmap = invert_colors(pixmap)
-        self.arrow_button.setIcon(QIcon(pixmap))
-        self.arrow_button.setIconSize(QSize(64, 20))
-        self.arrow_button.setMouseTracking(True)
-        main_layout.setContentsMargins(0, 0, 0, 0)
         draggable_option_container_layout.addWidget(self.options_widget, 0, Qt.AlignCenter)
         draggable_option_container_layout.addWidget(self.arrow_button, 0, Qt.AlignCenter)
         main_layout.addWidget(draggable_option_container, 0)

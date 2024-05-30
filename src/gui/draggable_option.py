@@ -4,13 +4,7 @@ from PyQt5.QtCore import (
     QPoint,
     QSize
 )
-from PyQt5.QtWidgets import (
-    QWidget,
-    QPushButton,
-    QGridLayout,
-    QSpacerItem,
-    QWidgetItem
-)
+
 from PyQt5.QtGui import (
     QIcon,
     QPixmap,
@@ -19,68 +13,10 @@ from PyQt5.QtGui import (
     QColor
 )
 
-from helper_defs import invert_colors
+import resources_rc # noqa
 
-
-class GridContainer(QWidget):
-    """
-        Custom grid layout, that allows to draw debug rectangles and custom styled layout.
-    """
-    def __init__(self, parent=None):
-        super(GridContainer, self).__init__(parent)
-        self.grid_layout = QGridLayout(self)
-        self.setLayout(self.grid_layout)
-        self.draw_rect = False
-
-    def paintEvent(self, event):
-        super().paintEvent(event)
-        painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing)
-        painter.setBrush(QColor("#EE202020"))
-        painter.setPen(QColor("#FF202020"))
-        corner_radius = 10
-        painter.drawRoundedRect(self.rect(), corner_radius, corner_radius)
-        pen_width = 10
-        painter.setPen(QColor("#EEAAAAAA"))
-        painter.setBrush(Qt.NoBrush)
-
-        # Draw a rounded border rectangle
-        border_rect = self.rect().adjusted(pen_width, pen_width, -pen_width, -pen_width)
-        painter.drawRoundedRect(border_rect, corner_radius, corner_radius)
-        if self.draw_rect is False:
-            return
-        painter.setPen(QPen(QColor(100, 100, 100), 2))
-
-        for row in range(self.grid_layout.rowCount()):
-            for col in range(self.grid_layout.columnCount()):
-                painter.setPen(QPen(QColor(100, 100, 100), 2))
-                rect = self.grid_layout.cellRect(row, col)
-                painter.drawRect(rect)
-                item = self.grid_layout.itemAtPosition(row, col)
-                if item:
-                    if isinstance(item, QWidgetItem):
-                        rect = item.widget().geometry()
-                    elif isinstance(item, QSpacerItem):
-                        painter.setPen(QPen(QColor(200, 200, 200), 2))
-                        rect = self.grid_layout.cellRect(row, col)
-                    painter.drawRect(rect)
-
-
-class BorderedButton(QPushButton):
-    """
-        Custom button to allow optional debug rectangles around the button.
-    """
-    def __init__(self, title, parent=None):
-        super(BorderedButton, self).__init__(title, parent)
-        self.draw_rect = False
-
-    def paintEvent(self, event):
-        super().paintEvent(event)
-        if self.draw_rect is False:
-            return
-        painter = QPainter(self)
-        painter.setPen(QPen(QColor(255, 0, 0), 2))  # Red border with 2px width
-        painter.drawRect(self.rect())
+from helper_defs import invert_colors, get_stylesheet
+from gui.helper_widgets import GridContainer, BorderedButton
 
 
 class Options(GridContainer):
@@ -92,132 +28,30 @@ class Options(GridContainer):
         add_button = BorderedButton('')
         icon_width = 64
         icon_height = 64
-        pixmap = QPixmap("src/resources/add_button.png")
+        pixmap = QPixmap(":/icons/add_button.png")
         pixmap = invert_colors(pixmap)
         add_button.setIcon(QIcon(pixmap))
         add_button.setIconSize(QSize(icon_width, icon_height))
-        add_button.setStyleSheet("""
-            QPushButton {
-                background-color: transparent;
-                border-top: none;
-                border-left: none;
-                border-right: none;
-                border-bottom: none;
-                margin: 0px;
-                padding: 0px;
-                border-radius: 10px;
-            }
-            QPushButton:hover {
-                background-color: #AAAAAAAA;
-                border-top: none;
-                border-left: none;
-                border-right: none;
-                border-bottom: none;
-                margin: 0px;
-                padding: 0px;
-                border-radius: 10px;
-            }
-            QPushButton:pressed {
-                background-color: #807070AA;
-                border-top: none;
-                border-left: none;
-                border-right: none;
-                border-bottom: none;
-                margin: 0px;
-                padding: 0px;
-                border-radius: 10px;
-            }
-        """)
+
+        add_button.setStyleSheet(get_stylesheet(":/styles/options_button.css"))
         connect_button = BorderedButton('')
-        pixmap = QPixmap("src/resources/connect_button.png")
+        pixmap = QPixmap(":/icons/connect_button.png")
         pixmap = invert_colors(pixmap)
         connect_button.setIcon(QIcon(pixmap))
         connect_button.setIconSize(QSize(icon_width, icon_height))
-        connect_button.setStyleSheet("""
-            QPushButton {
-                background-color: transparent;
-                border-top: none;
-                border-left: none;
-                border-right: none;
-                border-bottom: none;
-                margin: 0px;
-                padding: 0px;
-                border-radius: 10px;
-            }
-            QPushButton:hover {
-                background-color: #AAAAAAAA;
-                border-top: none;
-                border-left: none;
-                border-right: none;
-                border-bottom: none;
-                margin: 0px;
-                padding: 0px;
-                border-radius: 10px;
-            }
-            QPushButton:pressed {
-                background-color: #807070AA;
-                border-top: none;
-                border-left: none;
-                border-right: none;
-                border-bottom: none;
-                margin: 0px;
-                padding: 0px;
-                border-radius: 10px;
-            }
-        """)
+        connect_button.setStyleSheet(get_stylesheet(":/styles/options_button.css"))
         settings_button = BorderedButton('')
-        pixmap = QPixmap("src/resources/settings_button.png")
+        pixmap = QPixmap(":/icons/settings_button.png")
         pixmap = invert_colors(pixmap)
         settings_button.setIcon(QIcon(pixmap))
         settings_button.setIconSize(QSize(icon_width, icon_height))
-        settings_button.setStyleSheet("""
-            QPushButton {
-                background-color: transparent;
-                border-top: none;
-                border-left: none;
-                border-right: none;
-                border-bottom: none;
-                margin: 0px;
-                padding: 0px;
-                border-radius: 10px;
-            }
-            QPushButton:hover {
-                background-color: #AAAAAAAA;
-                border-top: none;
-                border-left: none;
-                border-right: none;
-                border-bottom: none;
-                margin: 0px;
-                padding: 0px;
-                border-radius: 10px;
-            }
-            QPushButton:pressed {
-                background-color: #807070AA;
-                border-top: none;
-                border-left: none;
-                border-right: none;
-                border-bottom: none;
-                margin: 0px;
-                padding: 0px;
-                border-radius: 10px;
-            }
-        """)
+        settings_button.setStyleSheet(get_stylesheet(":/styles/options_button.css"))
         self.back_button = BorderedButton('')
-        pixmap = QPixmap("src/resources/back_arrow.png")
+        pixmap = QPixmap(":/icons/back_arrow.png")
         pixmap = invert_colors(pixmap)
         self.back_button.setIcon(QIcon(pixmap))
         self.back_button.setIconSize(QSize(int(icon_width), int(icon_height / 2)))
-        self.back_button.setStyleSheet("""
-            QPushButton {
-                background-color: transparent;
-                border-top: none;
-                border-left: none;
-                border-right: none;
-                border-bottom: none;
-                margin: 0px;
-                padding: 0px;
-            }
-        """)
+        self.back_button.setStyleSheet(get_stylesheet(":/styles/back_button.css"))
         self.back_button.pressed.connect(self.release_options_widget)
         c_icon_count_in_column = 2
         c_column_spacer_count = c_icon_count_in_column + 1
@@ -271,25 +105,17 @@ class DraggableButton(BorderedButton):
     def __init__(self, title, open_option, move_option, release_option, parent=None):
         super(DraggableButton, self).__init__(title, parent)
         self.setMouseTracking(True)
+        pixmap = QPixmap(":/icons/down_arrow.png")
+        pixmap = invert_colors(pixmap)
+        self.setIcon(QIcon(pixmap))
+        self.setIconSize(QSize(64, 20))
         self.mouse_pressed = False
         self.open_option = open_option
         self.release_option = release_option
         self.move_option = move_option
         self.animation = QPropertyAnimation(self, b"pos")
         self.animation.setDuration(500)
-        self.setStyleSheet("""
-            QPushButton {
-                background-color: transparent;
-                border-top: none;
-                border-bottom: 2px solid gray;
-                border-left: 2px solid gray;
-                border-right: 2px solid gray;
-                border-bottom-left-radius: 20px;
-                border-bottom-right-radius: 20px;
-                margin: 0px;
-                padding: 0px;
-            }
-        """)
+        self.setStyleSheet(get_stylesheet(":/styles/dropdown_button.css"))
 
         self.setFixedSize(int(parent.width() / 4), int(parent.height() / 20))
         self.original_position = QPoint(int(parent.width() / 4 + self.width() / 2), 0)

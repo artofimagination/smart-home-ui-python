@@ -1,4 +1,10 @@
-from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt5 import QtWidgets, QtGui
+
+from PyQt5.QtCore import (
+    QPointF
+)
+
+import resources_rc # noqa
 
 from gui.channel import Channel
 from gui.component_gui import ComponentGui
@@ -32,14 +38,14 @@ class CustomScene(QtWidgets.QGraphicsScene):
             y = (scene_rect.height() - image_height) / 2
 
             # Draw the pixmap at the calculated position
-            painter.drawPixmap(QtCore.QPointF(x, y), self.background_image)
+            painter.drawPixmap(QPointF(x, y), self.background_image)
 
 
 class Canvas(QtWidgets.QGraphicsView):
     """Custom canvas to plot the smart home ui."""
     def __init__(self):
         super().__init__()
-        self.scene = CustomScene("src/resources/canvas_bg.jpg")
+        self.scene = CustomScene(":/backgrounds/canvas_bg.jpg")
         self.scene.setBackgroundBrush(QtGui.QBrush(QtGui.QColor("#111111")))
         self.setScene(self.scene)
         self.setRenderHint(QtGui.QPainter.Antialiasing)
@@ -59,9 +65,9 @@ class Canvas(QtWidgets.QGraphicsView):
                 - y (int): y coordinate where the gui item expected to be created at
         """
         if type == TYPE_SOLAR_PANEL:
-            self.component_list.append(ComponentGui(id, self.scene, x, y, "src/resources/solar_panel_icon.png"))
+            self.component_list.append(ComponentGui(id, self.scene, x, y, ":/icons/solar_panel_icon.png"))
         elif type == TYPE_BATTERY:
-            self.component_list.append(ComponentGui(id, self.scene, x, y, "src/resources/battery_icon.png"))
+            self.component_list.append(ComponentGui(id, self.scene, x, y, ":/icons/battery_icon.png"))
         else:
             raise Exception("Unknown component id")
 

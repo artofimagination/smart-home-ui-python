@@ -1,0 +1,21 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="icons">
+        <file alias="add_button.png">qrc/images/add_button.png</file>
+        <file alias="back_arrow.png">qrc/images/back_arrow.png</file>
+        <file alias="battery_icon.png">qrc/images/battery_icon.png</file>
+        <file alias="connect_button.png">qrc/images/connect_button.png</file>
+        <file alias="down_arrow.png">qrc/images/down_arrow.png</file>
+        <file alias="settings_button.png">qrc/images/settings_button.png</file>
+        <file alias="solar_panel_icon.png">qrc/images/solar_panel_icon.png</file>
+    </qresource>
+    <qresource prefix="backgrounds">
+        <file alias="canvas_bg.jpg">qrc/images/canvas_bg.jpg</file>
+    </qresource>
+    <qresource prefix="styles">
+        <file alias="options_button.css">qrc/styles/options_button.css</file>
+        <file alias="back_button.css">qrc/styles/back_button.css</file>
+        <file alias="dropdown_button.css">qrc/styles/dropdown_button.css</file>
+        <!-- Add more files as needed -->
+    </qresource>
+</RCC>

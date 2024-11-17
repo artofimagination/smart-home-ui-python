@@ -1,0 +1,47 @@
+QPushButton {
+    background-color: transparent;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    margin: 0px;
+    padding: 0px;
+    border-radius: 10px;
+}
+QPushButton:hover {
+    background-color: #AAAAAAAA;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    margin: 0px;
+    padding: 0px;
+    border-radius: 10px;
+}
+QPushButton:pressed {
+    background-color: #807070AA;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    border-bottom: none;
+    margin: 0px;
+    padding: 0px;
+    border-radius: 10px;
+}
+
+/* Specific styles for buttons with different colors */
+
+/* Button with class red-button */
+QPushButton.system-layer-button {
+    background-color: #FF0000AA;
+}
+
+/* Button with class green-button */
+QPushButton.heatmap-layer-button {
+    background-color: #FF5050AA;
+}
+
+/* Button with class blue-button */
+QPushButton.light-layer-button {
+    background-color: #FFAAAAAA;
+}

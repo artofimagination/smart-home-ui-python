@@ -12,6 +12,7 @@ from backend import Backend
 from gui.canvas import Canvas
 from gui.draggable_option import DraggableButton, Options
 from models.model_updater import ModelUpdater
+from gui.layer_control_gui import LayerControlWidget
 
 from helper_defs import (
     TYPE_SOLAR_PANEL,
@@ -44,6 +45,7 @@ class MainWindow(QMainWindow):
         main_layout = QVBoxLayout(self.canvas)
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout = self._create_options(main_layout)
+        main_layout = self._create_layer_buttons(main_layout)
         self.model_updater = ModelUpdater(self.canvas.component_list, self.canvas.channels, self.worker)
 
         self.update_timer = QTimer(self)
@@ -75,6 +77,11 @@ class MainWindow(QMainWindow):
         draggable_option_container_layout.addWidget(self.options_widget, 0, Qt.AlignCenter)
         draggable_option_container_layout.addWidget(self.arrow_button, 0, Qt.AlignCenter)
         main_layout.addWidget(draggable_option_container, 0)
+        return main_layout
+
+    def _create_layer_buttons(self, main_layout):
+        layer_control_container = LayerControlWidget()
+        main_layout.addWidget(layer_control_container)
         return main_layout
 
     def create_component(self, type: int, x: int, y: int):

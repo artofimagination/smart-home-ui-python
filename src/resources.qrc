@@ -16,6 +16,7 @@
         <file alias="options_button.css">qrc/styles/options_button.css</file>
         <file alias="back_button.css">qrc/styles/back_button.css</file>
         <file alias="dropdown_button.css">qrc/styles/dropdown_button.css</file>
+        <file alias="layer_button.css">qrc/styles/layer_button.css</file>
         <!-- Add more files as needed -->
     </qresource>
 </RCC>
